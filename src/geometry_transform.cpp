@@ -1,52 +1,53 @@
-#include <cmath>
 #include <fstream>
-#include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <sstream>
 #include <stdio.h>
-#include <vector>
 
-struct Complex
+#include "complex/complex.hpp"
+
+void rotation_point(cv::Mat& blank_image, Complex rotation, std::vector<Complex> points)
 {
-    float x;
-    float y;
+    int mid = blank_image.rows / 2;
+    int top = blank_image.rows;
+    std::vector<Complex> points_rotation;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        Complex complex;
+        complex = points[i] * rotation;
+        points_rotation.push_back(complex);
+    }
 
-public:
-    Complex(float x = 0, float y = 0);
-    Complex operator+(const Complex& c);
-    Complex operator-(const Complex& c);
-    Complex operator*(const Complex& c);
-};
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1)%points.size()].x + mid, points[(i + 1)%points.size()].y + mid), cv::Scalar(0, 200, 0));
+        cv::line(blank_image, cv::Point(points_rotation[i].x + mid, points_rotation[i].y + mid), cv::Point(points_rotation[(i + 1)%points_rotation.size()].x + mid, points_rotation[(i + 1)%points_rotation.size()].y + mid), cv::Scalar(0, 0, 200));
+    }
 
-Complex::Complex(float x, float y)
-    : x(x), y(y)
-{
+    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
+    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
 }
 
-Complex Complex::operator+(const Complex& c)
+void translation_point(cv::Mat& blank_image, Complex translation, std::vector<Complex> points)
 {
-    Complex complex;
-    complex.x = this->x + c.x;
-    complex.y = this->y + c.y;
-    return complex;
-}
+    int mid = blank_image.rows / 2;
+    int top = blank_image.rows;
+    std::vector<Complex> points_translation;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        Complex complex;
+        complex = points[i] + translation;
+        points_translation.push_back(complex);
+    }
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1)%points.size()].x + mid, points[(i + 1)%points.size()].y + mid), cv::Scalar(0, 200, 0));
+        cv::line(blank_image, cv::Point(points_translation[i].x + mid, points_translation[i].y + mid), cv::Point(points_translation[(i + 1)%points_translation.size()].x + mid, points_translation[(i + 1)%points_translation.size()].y + mid), cv::Scalar(0, 0, 200));
+    }
 
-Complex Complex::operator-(const Complex& c)
-{
-    Complex complex;
-    complex.x = this->x - c.x;
-    complex.y = this->y - c.y;
-    return complex;
-}
-
-Complex Complex::operator*(const Complex& c)
-{
-    Complex complex;
-    complex.x = this->x * c.x - this->y * c.y;
-    complex.y = this->x * c.y + c.x * this->y;
-    return complex;
+    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
+    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
 }
 
 int main()
@@ -67,40 +68,18 @@ int main()
         points.push_back(point);
     }
 
-    // std::vector<Complex> points_translation;
-    // Complex translation;
-    // translation.x = 0;
-    // translation.y = 50;
-    // for (size_t i = 0; i < points.size(); ++i)
-    // {
-    //     Complex complex;
-    //     complex = points[i] + translation;
-    //     points_translation.push_back(complex);
-    // }
+    Complex translation;
+    translation.x = 50;
+    translation.y = 100;
 
-    std::vector<Complex> points_rotation;
     Complex rotation;
-    rotation.x = 1 / 2;
-    rotation.y = sqrt(3) / 2;
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        Complex complex;
-        complex = points[i] * rotation;
-        points_rotation.push_back(complex);
-    }
+    rotation.x = cos(M_PI / 3);
+    rotation.y = sin(M_PI / 3);
 
     cv::Mat blank_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        for (size_t j = 0; j < points_rotation.size(); ++j)
-        {
-            cv::line(blank_image, cv::Point(points[i].x + 400, points[i].y + 400), cv::Point(points[i + 1].x + 400, points[i + 1].y + 400), cv::Scalar(0, 200, 0));
-            cv::line(blank_image, cv::Point(points[points.size() - 1].x + 400, points[points.size() - 1].y + 400), cv::Point(points[0].x + 400, points[0].y + 400), cv::Scalar(0, 200, 0));
-            cv::line(blank_image, cv::Point(points_rotation[j].x + 400, points_rotation[j].y + 400), cv::Point(points_rotation[j + 1].x + 400, points_rotation[j + 1].y + 400), cv::Scalar(0, 0, 200));
-            cv::line(blank_image, cv::Point(points_rotation[points_rotation.size() - 1].x + 400, points_rotation[points_rotation.size() - 1].y + 400), cv::Point(points_rotation[0].x + 400, points_rotation[0].y + 400), cv::Scalar(0, 0, 200));
-        }
-    }
 
+    // rotation_point(blank_image, rotation, points);
+    translation_point(blank_image, translation, points);
     cv::flip(blank_image, blank_image, 0);
     cv::imshow("blank_image", blank_image);
     cv::waitKey(0);
