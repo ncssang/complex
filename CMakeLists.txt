@@ -16,8 +16,10 @@ find_package(OpenCV REQUIRED)
 ## Your package locations should be listed before other locations
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(load_display_image src/load_display_image.cpp)
+add_executable(complex src/complex.cpp)
+add_executable(geometry_transform src/geometry_transform.cpp)
+
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(load_display_image ${OpenCV_LIBS})
+target_link_libraries(geometry_transform ${OpenCV_LIBS})
 
