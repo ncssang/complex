@@ -25,54 +25,34 @@ void draw_transform(cv::Mat& image, const std::vector<Complex>& source_points, s
     draw_polygon(image, destination_points, Complex(mid, mid), cv::Scalar(0, 0, 255));
 }
 
-void scaling_image(cv::Mat& blank_image, const std::vector<Complex>& points, float scale)
+Complex get_rotation_point(const Complex& source_point, const Complex& rotation)
 {
-    std::vector<Complex> points_scaling;
-    Complex scaling;
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        scaling.x = points[i].x + points[i].y * scale;
-        scaling.y = points[i].y;
-        points_scaling.push_back(scaling);
-    }
-    draw_transform(blank_image, points, points_scaling);
+    Complex destination_point;
+    destination_point = source_point * rotation;
+    return destination_point;
 }
 
-void reflection_image(cv::Mat& blank_image, const std::vector<Complex>& points)
+Complex get_scaling_point(const Complex& source_point, float scale)
 {
-    std::vector<Complex> points_reflection;
-    Complex reflection;
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        reflection.x = -points[i].x;
-        reflection.y = points[i].y;
-        points_reflection.push_back(reflection);
-    }
-    draw_transform(blank_image, points, points_reflection);
+    Complex destination_point;
+    destination_point.x = source_point.x + source_point.y * scale;
+    destination_point.y = source_point.y;
+    return destination_point;
 }
 
-void rotation_image(cv::Mat& blank_image, const Complex& rotation_point, const std::vector<Complex>& points)
+Complex get_reflection_point(const Complex& source_point)
 {
-    std::vector<Complex> points_rotation;
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        Complex complex;
-        complex = points[i] * rotation_point;
-        points_rotation.push_back(complex);
-    }
-    draw_transform(blank_image, points, points_rotation);
+    Complex destination_point;
+    destination_point.x = -source_point.x;
+    destination_point.y = source_point.y;
+    return destination_point;
 }
 
-void translation_image(cv::Mat& blank_image, const Complex& translation_point, const std::vector<Complex>& points)
+Complex get_translation_point(const Complex& source_point, const Complex& translation)
 {
-    std::vector<Complex> points_translation;
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        Complex complex;
-        complex = points[i] + translation_point;
-        points_translation.push_back(complex);
-    }
-    draw_transform(blank_image, points, points_translation);
+    Complex translation_point;
+    translation_point = source_point + translation;
+    return translation_point;
 }
 
 int main()
@@ -93,33 +73,62 @@ int main()
         points.push_back(point);
     }
 
-    Complex rotation_point;
-    rotation_point.x = cos(M_PI / 3);
-    rotation_point.y = sin(M_PI / 3);
+    Complex rotate;
+    rotate.x = cos(M_PI / 3);
+    rotate.y = sin(M_PI / 3);
+    std::vector<Complex> rotation_points;
+    Complex destination_point_rotation;
+    for(size_t i = 0; i < points.size(); ++i)
+    {
+        destination_point_rotation = get_rotation_point(points[i], rotate);
+        rotation_points.push_back(destination_point_rotation); 
+    }
 
+    Complex translation;
+    translation.x = 50;
+    translation.y = 100;
+    std::vector<Complex> translation_points;
     Complex translation_point;
-    translation_point.x = 50;
-    translation_point.y = 100;
+    for(size_t i = 0; i < points.size(); ++i)
+    {
+        translation_point = get_translation_point(points[i], translation);
+        translation_points.push_back(translation_point); 
+    }
+
+    std::vector<Complex> reflection_points;
+    Complex reflection_point;
+    for(size_t i = 0; i < points.size(); ++i)
+    {
+        reflection_point = get_reflection_point(points[i]);
+        reflection_points.push_back(reflection_point); 
+    }
 
     float scale = 1;
+    std::vector<Complex> scaling_points;
+    Complex scaling_point;
+    for(size_t i = 0; i < points.size(); ++i)
+    {
+        scaling_point = get_scaling_point(points[i], scale);
+        scaling_points.push_back(scaling_point); 
+    }
 
-    cv::Mat rotation(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    rotation_image(rotation, rotation_point, points);
-    cv::flip(rotation, rotation, 0);
-    cv::imshow("rotation", rotation);
+    cv::Mat rotation_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(rotation_image, points, rotation_points);
+    cv::flip(rotation_image, rotation_image, 0);
+    cv::imshow("rotation_image", rotation_image);
 
-    cv::Mat translation(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    translation_image(translation, translation_point, points);
-    cv::flip(translation, translation, 0);
-    cv::imshow("translation", translation);
+    cv::Mat translation_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(translation_image, points, translation_points);
+    cv::flip(translation_image, translation_image, 0);
+    cv::imshow("translation_image", translation_image);
 
-    cv::Mat reflection(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    reflection_image(reflection, points);
-    cv::flip(reflection, reflection, 0);
-    cv::imshow("reflection", reflection);
+    cv::Mat reflection_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(reflection_image, points, reflection_points);
+    cv::flip(reflection_image, reflection_image, 0);
+    cv::imshow("reflection_image", reflection_image);
 
     cv::Mat scale_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    scaling_image(scale_image, points, scale);
+    draw_transform(scale_image, points, scaling_points);
     cv::flip(scale_image, scale_image, 0);
     cv::imshow("scale_image", scale_image);
 
