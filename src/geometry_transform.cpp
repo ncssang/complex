@@ -7,32 +7,39 @@
 
 #include "complex/complex.hpp"
 
-void scaling_image(cv::Mat& blank_image, std::vector<Complex> points, float scale)
+void draw_polygon(cv::Mat& image, const std::vector<Complex>& points, const Complex& offset, const cv::Scalar& colour)
 {
-    int mid = blank_image.rows / 2;
-    int top = blank_image.rows;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        cv::line(image, cv::Point(points[i].x + offset.x, points[i].y + offset.y), cv::Point(points[(i + 1) % points.size()].x + offset.x, points[(i + 1) % points.size()].y + offset.y), colour);
+    }
+}
+
+void draw_transform(cv::Mat& image, const std::vector<Complex>& source_points, std::vector<Complex>& destination_points)
+{
+    int mid = image.rows / 2;
+    int top = image.rows;
+    cv::line(image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
+    cv::line(image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
+    draw_polygon(image, source_points, Complex(mid, mid), cv::Scalar(0, 255, 0));
+    draw_polygon(image, destination_points, Complex(mid, mid), cv::Scalar(0, 0, 255));
+}
+
+void scaling_image(cv::Mat& blank_image, const std::vector<Complex>& points, float scale)
+{
     std::vector<Complex> points_scaling;
     Complex scaling;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        scaling.x = points[i].x * scale;
-        scaling.y = points[i].y * scale;
+        scaling.x = points[i].x + points[i].y * scale;
+        scaling.y = points[i].y;
         points_scaling.push_back(scaling);
     }
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1) % points.size()].x + mid, points[(i + 1) % points.size()].y + mid), cv::Scalar(0, 200, 0));
-        cv::line(blank_image, cv::Point(points_scaling[i].x + mid, points_scaling[i].y + mid), cv::Point(points_scaling[(i + 1) % points_scaling.size()].x + mid, points_scaling[(i + 1) % points_scaling.size()].y + mid), cv::Scalar(0, 0, 200));
-    }
-
-    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
-    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
+    draw_transform(blank_image, points, points_scaling);
 }
 
-void reflection_image(cv::Mat& blank_image, std::vector<Complex> points)
+void reflection_image(cv::Mat& blank_image, const std::vector<Complex>& points)
 {
-    int mid = blank_image.rows / 2;
-    int top = blank_image.rows;
     std::vector<Complex> points_reflection;
     Complex reflection;
     for (size_t i = 0; i < points.size(); ++i)
@@ -41,21 +48,11 @@ void reflection_image(cv::Mat& blank_image, std::vector<Complex> points)
         reflection.y = points[i].y;
         points_reflection.push_back(reflection);
     }
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1) % points.size()].x + mid, points[(i + 1) % points.size()].y + mid), cv::Scalar(0, 200, 0));
-        cv::line(blank_image, cv::Point(points_reflection[i].x + mid, points_reflection[i].y + mid), cv::Point(points_reflection[(i + 1) % points_reflection.size()].x + mid, points_reflection[(i + 1) % points_reflection.size()].y + mid), cv::Scalar(0, 0, 200));
-    }
-
-    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
-    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
+    draw_transform(blank_image, points, points_reflection);
 }
 
-void rotation_image(cv::Mat& blank_image, Complex rotation_point, std::vector<Complex> points)
+void rotation_image(cv::Mat& blank_image, const Complex& rotation_point, const std::vector<Complex>& points)
 {
-    int mid = blank_image.rows / 2;
-    int top = blank_image.rows;
-
     std::vector<Complex> points_rotation;
     for (size_t i = 0; i < points.size(); ++i)
     {
@@ -63,22 +60,11 @@ void rotation_image(cv::Mat& blank_image, Complex rotation_point, std::vector<Co
         complex = points[i] * rotation_point;
         points_rotation.push_back(complex);
     }
-
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1) % points.size()].x + mid, points[(i + 1) % points.size()].y + mid), cv::Scalar(0, 200, 0));
-        cv::line(blank_image, cv::Point(points_rotation[i].x + mid, points_rotation[i].y + mid), cv::Point(points_rotation[(i + 1) % points_rotation.size()].x + mid, points_rotation[(i + 1) % points_rotation.size()].y + mid), cv::Scalar(0, 0, 200));
-    }
-
-    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
-    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
+    draw_transform(blank_image, points, points_rotation);
 }
 
-void translation_image(cv::Mat& blank_image, Complex translation_point, std::vector<Complex> points)
+void translation_image(cv::Mat& blank_image, const Complex& translation_point, const std::vector<Complex>& points)
 {
-    int mid = blank_image.rows / 2;
-    int top = blank_image.rows;
-
     std::vector<Complex> points_translation;
     for (size_t i = 0; i < points.size(); ++i)
     {
@@ -86,14 +72,7 @@ void translation_image(cv::Mat& blank_image, Complex translation_point, std::vec
         complex = points[i] + translation_point;
         points_translation.push_back(complex);
     }
-    for (size_t i = 0; i < points.size(); ++i)
-    {
-        cv::line(blank_image, cv::Point(points[i].x + mid, points[i].y + mid), cv::Point(points[(i + 1) % points.size()].x + mid, points[(i + 1) % points.size()].y + mid), cv::Scalar(0, 200, 0));
-        cv::line(blank_image, cv::Point(points_translation[i].x + mid, points_translation[i].y + mid), cv::Point(points_translation[(i + 1) % points_translation.size()].x + mid, points_translation[(i + 1) % points_translation.size()].y + mid), cv::Scalar(0, 0, 200));
-    }
-
-    cv::line(blank_image, cv::Point(mid, 0), cv::Point(mid, top), cv::Scalar(100, 0, 0));
-    cv::line(blank_image, cv::Point(0, mid), cv::Point(top, mid), cv::Scalar(100, 0, 0));
+    draw_transform(blank_image, points, points_translation);
 }
 
 int main()
@@ -104,8 +83,8 @@ int main()
     std::vector<int> numbers_y;
     for (size_t i = 0; i < 10; ++i)
     {
-        numbers_x.push_back(int(rand() % 250));
-        numbers_y.push_back(int(rand() % 250));
+        numbers_x.push_back(int(rand() % 200));
+        numbers_y.push_back(int(rand() % 200));
     }
     for (size_t i = 0; i < numbers_x.size(); ++i)
     {
@@ -122,7 +101,7 @@ int main()
     translation_point.x = 50;
     translation_point.y = 100;
 
-    float scale = 0.5;
+    float scale = 1;
 
     cv::Mat rotation(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
     rotation_image(rotation, rotation_point, points);

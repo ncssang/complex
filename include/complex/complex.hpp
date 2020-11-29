@@ -12,9 +12,9 @@ struct Complex
 
 public:
     Complex(float x = 0, float y = 0);
-    Complex operator+(const Complex& c);
-    Complex operator-(const Complex& c);
-    Complex operator*(const Complex& c);
+    Complex operator+(const Complex& c) const;
+    Complex operator-(const Complex& c) const;
+    Complex operator*(const Complex& c) const;
 };
 
 #endif //COMPLEX_HPP

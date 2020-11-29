@@ -5,7 +5,7 @@ Complex::Complex(float x, float y)
 {
 }
 
-Complex Complex::operator+(const Complex& c)
+Complex Complex::operator+(const Complex& c) const
 {
     Complex complex;
     complex.x = this->x + c.x;
@@ -13,7 +13,7 @@ Complex Complex::operator+(const Complex& c)
     return complex;
 }
 
-Complex Complex::operator-(const Complex& c)
+Complex Complex::operator-(const Complex& c) const
 {
     Complex complex;
     complex.x = this->x - c.x;
@@ -21,7 +21,7 @@ Complex Complex::operator-(const Complex& c)
     return complex;
 }
 
-Complex Complex::operator*(const Complex& c)
+Complex Complex::operator*(const Complex& c) const
 {
     Complex complex;
     complex.x = this->x * c.x - this->y * c.y;
