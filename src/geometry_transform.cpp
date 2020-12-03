@@ -32,11 +32,19 @@ Complex get_rotation_point(const Complex& source_point, const Complex& rotation)
     return destination_point;
 }
 
-Complex get_scaling_point(const Complex& source_point, float scale)
+Complex get_shear(const Complex& source_point, float scale)
 {
     Complex destination_point;
     destination_point.x = source_point.x + source_point.y * scale;
     destination_point.y = source_point.y;
+    return destination_point;
+}
+
+Complex get_scaling(const Complex& source_point, Complex scale)
+{
+    Complex destination_point;
+    destination_point.x = source_point.x * scale.x;
+    destination_point.y = source_point.y * scale.y;
     return destination_point;
 }
 
@@ -78,10 +86,10 @@ int main()
     rotate.y = sin(M_PI / 3);
     std::vector<Complex> rotation_points;
     Complex destination_point_rotation;
-    for(size_t i = 0; i < points.size(); ++i)
+    for (size_t i = 0; i < points.size(); ++i)
     {
         destination_point_rotation = get_rotation_point(points[i], rotate);
-        rotation_points.push_back(destination_point_rotation); 
+        rotation_points.push_back(destination_point_rotation);
     }
 
     Complex translation;
@@ -89,27 +97,45 @@ int main()
     translation.y = 100;
     std::vector<Complex> translation_points;
     Complex translation_point;
-    for(size_t i = 0; i < points.size(); ++i)
+    for (size_t i = 0; i < points.size(); ++i)
     {
         translation_point = get_translation_point(points[i], translation);
-        translation_points.push_back(translation_point); 
+        translation_points.push_back(translation_point);
     }
 
     std::vector<Complex> reflection_points;
     Complex reflection_point;
-    for(size_t i = 0; i < points.size(); ++i)
+    for (size_t i = 0; i < points.size(); ++i)
     {
         reflection_point = get_reflection_point(points[i]);
-        reflection_points.push_back(reflection_point); 
+        reflection_points.push_back(reflection_point);
     }
 
-    float scale = 1;
-    std::vector<Complex> scaling_points;
-    Complex scaling_point;
-    for(size_t i = 0; i < points.size(); ++i)
+    float shear = 1;
+    std::vector<Complex> shear_points;
+    Complex shear_point;
+    for (size_t i = 0; i < points.size(); ++i)
     {
-        scaling_point = get_scaling_point(points[i], scale);
-        scaling_points.push_back(scaling_point); 
+        shear_point = get_shear(points[i], shear);
+        shear_points.push_back(shear_point);
+    }
+
+    Complex scale_uniform(0.5, 0.5);
+    std::vector<Complex> scale_uniform_points;
+    Complex scale_uniform_point;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        scale_uniform_point = get_scaling(points[i], scale_uniform);
+        scale_uniform_points.push_back(scale_uniform_point);
+    }
+
+    Complex scale_nouniform(1, 2);
+    std::vector<Complex> scale_nouniform_points;
+    Complex scale_nouniform_point;
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        scale_nouniform_point = get_scaling(points[i], scale_nouniform);
+        scale_nouniform_points.push_back(scale_nouniform_point);
     }
 
     cv::Mat rotation_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
@@ -127,10 +153,20 @@ int main()
     cv::flip(reflection_image, reflection_image, 0);
     cv::imshow("reflection_image", reflection_image);
 
-    cv::Mat scale_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
-    draw_transform(scale_image, points, scaling_points);
-    cv::flip(scale_image, scale_image, 0);
-    cv::imshow("scale_image", scale_image);
+    cv::Mat shear_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(shear_image, points, shear_points);
+    cv::flip(shear_image, shear_image, 0);
+    cv::imshow("shear_image", shear_image);
+
+    cv::Mat scale_uniform_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(scale_uniform_image, points, scale_uniform_points);
+    cv::flip(scale_uniform_image, scale_uniform_image, 0);
+    cv::imshow("scale_uniform_image", scale_uniform_image);
+
+    cv::Mat scale_nouniform_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
+    draw_transform(scale_nouniform_image, points, scale_nouniform_points);
+    cv::flip(scale_nouniform_image, scale_nouniform_image, 0);
+    cv::imshow("scale_nouniform_image", scale_nouniform_image);
 
     cv::waitKey(0);
 }
