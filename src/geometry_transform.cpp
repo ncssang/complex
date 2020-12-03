@@ -15,7 +15,7 @@ void draw_polygon(cv::Mat& image, const std::vector<Complex>& points, const Comp
     }
 }
 
-void draw_transform(cv::Mat& image, const std::vector<Complex>& source_points, std::vector<Complex>& destination_points)
+void draw_transform(cv::Mat& image, const std::vector<Complex>& source_points, const std::vector<Complex>& destination_points)
 {
     int mid = image.rows / 2;
     int top = image.rows;
@@ -40,7 +40,7 @@ Complex get_shear(const Complex& source_point, float scale)
     return destination_point;
 }
 
-Complex get_scaling(const Complex& source_point, Complex scale)
+Complex get_scaling(const Complex& source_point, const Complex& scale)
 {
     Complex destination_point;
     destination_point.x = source_point.x * scale.x;
@@ -66,24 +66,12 @@ Complex get_translation_point(const Complex& source_point, const Complex& transl
 int main()
 {
     std::vector<Complex> points;
-    Complex point;
-    std::vector<int> numbers_x;
-    std::vector<int> numbers_y;
     for (size_t i = 0; i < 10; ++i)
     {
-        numbers_x.push_back(int(rand() % 200));
-        numbers_y.push_back(int(rand() % 200));
-    }
-    for (size_t i = 0; i < numbers_x.size(); ++i)
-    {
-        point.x = numbers_x[i];
-        point.y = numbers_y[i];
-        points.push_back(point);
+        points.push_back(Complex(rand() % 200, rand() % 200));
     }
 
-    Complex rotate;
-    rotate.x = cos(M_PI / 3);
-    rotate.y = sin(M_PI / 3);
+    Complex rotate(cos(M_PI / 3), sin(M_PI / 3));
     std::vector<Complex> rotation_points;
     Complex destination_point_rotation;
     for (size_t i = 0; i < points.size(); ++i)
@@ -92,9 +80,7 @@ int main()
         rotation_points.push_back(destination_point_rotation);
     }
 
-    Complex translation;
-    translation.x = 50;
-    translation.y = 100;
+    Complex translation(50, 100);
     std::vector<Complex> translation_points;
     Complex translation_point;
     for (size_t i = 0; i < points.size(); ++i)
