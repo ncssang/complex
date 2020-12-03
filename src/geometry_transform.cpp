@@ -25,44 +25,6 @@ void draw_transform(cv::Mat& image, const std::vector<Complex>& source_points, c
     draw_polygon(image, destination_points, Complex(mid, mid), cv::Scalar(0, 0, 255));
 }
 
-Complex get_rotation_point(const Complex& source_point, const Complex& rotation)
-{
-    Complex destination_point;
-    destination_point = source_point * rotation;
-    return destination_point;
-}
-
-Complex get_shear(const Complex& source_point, float scale)
-{
-    Complex destination_point;
-    destination_point.x = source_point.x + source_point.y * scale;
-    destination_point.y = source_point.y;
-    return destination_point;
-}
-
-Complex get_scaling(const Complex& source_point, const Complex& scale)
-{
-    Complex destination_point;
-    destination_point.x = source_point.x * scale.x;
-    destination_point.y = source_point.y * scale.y;
-    return destination_point;
-}
-
-Complex get_reflection_point(const Complex& source_point)
-{
-    Complex destination_point;
-    destination_point.x = -source_point.x;
-    destination_point.y = source_point.y;
-    return destination_point;
-}
-
-Complex get_translation_point(const Complex& source_point, const Complex& translation)
-{
-    Complex translation_point;
-    translation_point = source_point + translation;
-    return translation_point;
-}
-
 int main()
 {
     std::vector<Complex> points;
@@ -76,52 +38,45 @@ int main()
     Complex destination_point_rotation;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        destination_point_rotation = get_rotation_point(points[i], rotate);
+        Complex a, b, c;
+        // a = b. c;
+        destination_point_rotation = Complex::get_rotation_point(points[i], rotate);
         rotation_points.push_back(destination_point_rotation);
     }
 
     Complex translation(50, 100);
     std::vector<Complex> translation_points;
-    Complex translation_point;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        translation_point = get_translation_point(points[i], translation);
+        Complex translation_point = Complex::get_translation_point(points[i], translation);
         translation_points.push_back(translation_point);
     }
 
     std::vector<Complex> reflection_points;
-    Complex reflection_point;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        reflection_point = get_reflection_point(points[i]);
-        reflection_points.push_back(reflection_point);
+        reflection_points.push_back(Complex::get_reflection_point(points[i]));
     }
 
     float shear = 1;
     std::vector<Complex> shear_points;
-    Complex shear_point;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        shear_point = get_shear(points[i], shear);
-        shear_points.push_back(shear_point);
+        shear_points.push_back(Complex::get_shear(points[i], shear));
     }
 
     Complex scale_uniform(0.5, 0.5);
     std::vector<Complex> scale_uniform_points;
-    Complex scale_uniform_point;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        scale_uniform_point = get_scaling(points[i], scale_uniform);
-        scale_uniform_points.push_back(scale_uniform_point);
+        scale_uniform_points.push_back(Complex::get_scaling(points[i], scale_uniform));
     }
 
     Complex scale_nouniform(1, 2);
     std::vector<Complex> scale_nouniform_points;
-    Complex scale_nouniform_point;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        scale_nouniform_point = get_scaling(points[i], scale_nouniform);
-        scale_nouniform_points.push_back(scale_nouniform_point);
+        scale_nouniform_points.push_back(Complex::get_scaling(points[i], scale_nouniform));
     }
 
     cv::Mat rotation_image(cv::Size(800, 800), CV_8UC3, cv::Scalar(0, 0, 0));
