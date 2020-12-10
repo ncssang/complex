@@ -17,6 +17,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(geometry_transform src/geometry_transform.cpp src/complex.cpp)
+add_executable(test_youtube src/test_youtube.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(geometry_transform ${OpenCV_LIBS})
