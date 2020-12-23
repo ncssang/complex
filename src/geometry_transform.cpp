@@ -35,12 +35,9 @@ int main()
 
     Complex rotate(cos(M_PI / 3), sin(M_PI / 3));
     std::vector<Complex> rotation_points;
-    Complex destination_point_rotation;
     for (size_t i = 0; i < points.size(); ++i)
     {
-        Complex a, b, c;
-        // a = b. c;
-        destination_point_rotation = Complex::get_rotation_point(points[i], rotate);
+        Complex destination_point_rotation = Complex::get_rotation_point(points[i], rotate);
         rotation_points.push_back(destination_point_rotation);
     }
 
@@ -108,6 +105,7 @@ int main()
     draw_transform(scale_nouniform_image, points, scale_nouniform_points);
     cv::flip(scale_nouniform_image, scale_nouniform_image, 0);
     cv::imshow("scale_nouniform_image", scale_nouniform_image);
+
 
     cv::waitKey(0);
 }

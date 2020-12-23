@@ -15,6 +15,8 @@ public:
     Complex operator+(const Complex& c) const;
     Complex operator-(const Complex& c) const;
     Complex operator*(const Complex& c) const;
+    void print() const;
+
 
     static Complex get_rotation_point(const Complex& source_point, const Complex& rotation);
     static Complex get_shear(const Complex& source_point, float scale);
@@ -22,5 +24,6 @@ public:
     static Complex get_reflection_point(const Complex& source_point);
     static Complex get_translation_point(const Complex& source_point, const Complex& translation);
 };
+
 
 #endif //COMPLEX_HPP

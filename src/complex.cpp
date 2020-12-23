@@ -29,6 +29,11 @@ Complex Complex::operator*(const Complex& c) const
     return complex;
 }
 
+void Complex::print() const
+{
+    std::cout << x << " " << y << std::endl;
+}
+
 Complex Complex::get_rotation_point(const Complex& source_point, const Complex& rotation)
 {
     Complex destination_point;
